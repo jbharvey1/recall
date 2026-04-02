@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recall</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg-content: #f4f4f4;
+      --text-primary: #161616;
+      --text-secondary: #525252;
+      --accent: #0f62fe;
+      --accent-hover: #0353e9;
+      --success: #198038;
+      --error: #da1e28;
+      --border: #e0e0e0;
+      --tag-bg: #e8f0fe;
+      --tag-text: #0f62fe;
+      --thread-bg: #defbe6;
+      --thread-text: #198038;
+    }
+
+    body {
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      background: var(--bg-content);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      height: 48px;
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+    .header-title .diamond {
+      color: var(--accent);
+      font-size: 18px;
+    }
+    .header-search {
+      background: var(--bg-content);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-primary);
+      width: 280px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .header-search::placeholder { color: var(--text-secondary); }
+    .header-search:focus { border-color: var(--accent); }
+
+    /* ---- TABS ---- */
+    .tab-bar {
+      position: fixed;
+      top: 48px;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      background: var(--bg);
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      padding: 0 24px;
+    }
+    .tab-btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-family: inherit;
+      font-weight: 400;
+      color: var(--text-secondary);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      color: var(--accent);
+      font-weight: 600;
+      border-bottom-color: var(--accent);
+    }
+
+    /* ---- CONTENT ---- */
+    .content {
+      margin-top: 98px;
+      padding: 24px;
+      max-width: 960px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ---- LOADING / EMPTY ---- */
+    .loading, .empty-state {
+      text-align: center;
+      padding: 48px 16px;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    .loading::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---- FILTER CHIPS ---- */
+    .section-label {
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-chip {
+      background: var(--bg);
+      border: 1px solid #c6c6c6;
+      border-radius: 16px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-primary);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .filter-chip:hover { border-color: var(--accent); }
+    .filter-chip.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #ffffff;
+    }
+
+    /* ---- REPORT CARDS ---- */
+    .report-list { display: flex; flex-direction: column; gap: 8px; }
+    .report-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      transition: border-color 0.15s;
+    }
+    .report-card:hover { border-color: var(--accent); }
+    .report-card-body { flex: 1; min-width: 0; }
+    .report-card-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .report-card-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .tag-list { display: flex; gap: 6px; flex-wrap: wrap; }
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .thread-badge {
+      background: var(--thread-bg);
+      color: var(--thread-text);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* ---- THREADS ---- */
+    .thread-list { display: flex; flex-direction: column; gap: 12px; }
+    .thread-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .thread-card-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .thread-card-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+    }
+    .timeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .timeline-entry {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .timeline-label {
+      font-size: 11px;
+      color: var(--text-primary);
+      max-width: 120px;
+      text-align: center;
+      line-height: 1.3;
+    }
+    .timeline-date {
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+    .timeline-line {
+      height: 2px;
+      background: #c6c6c6;
+      flex: 1;
+      min-width: 30px;
+    }
+
+    /* ---- TAG GRAPH ---- */
+    .graph-container {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .graph-container svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .graph-label-below {
+      font-size: 10px;
+      fill: var(--text-primary);
+      text-anchor: middle;
+      pointer-events: none;
+    }
+    .graph-label-inside {
+      font-size: 11px;
+      fill: #ffffff;
+      text-anchor: middle;
+      dominant-baseline: central;
+      font-weight: 600;
+      pointer-events: none;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 600px) {
+      .header { padding: 0 16px; }
+      .header-search { width: 160px; font-size: 12px; }
+      .content { padding: 16px; }
+      .tab-btn { padding: 10px 14px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">
+      <span class="diamond">&#9670;</span> Recall
+    </div>
+    <input type="text" class="header-search" id="searchInput" placeholder="Search reports, tags, threads...">
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="reports">Reports</button>
+    <button class="tab-btn" data-tab="threads">Threads</button>
+    <button class="tab-btn" data-tab="graph">Tag Graph</button>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Reports Panel -->
+    <div id="panel-reports" class="tab-panel active">
+      <div class="section-label">Filter by tag</div>
+      <div class="filter-row" id="filterRow"></div>
+      <div class="report-list" id="reportList">
+        <div class="loading">Loading reports...</div>
+      </div>
+    </div>
+
+    <!-- Threads Panel -->
+    <div id="panel-threads" class="tab-panel">
+      <div class="thread-list" id="threadList">
+        <div class="loading">Loading threads...</div>
+      </div>
+    </div>
+
+    <!-- Tag Graph Panel -->
+    <div id="panel-graph" class="tab-panel">
+      <div class="section-label">Tag relationships &mdash; node size = report count, edges = co-occurrence</div>
+      <div class="graph-container" id="graphContainer"></div>
+    </div>
+
+  </div>
+
+  <script src="/static/d3.v7.min.js"></script>
+  <script>
+  (function() {
+    "use strict";
+
+    // ---- State ----
+    var allReports = [];
+    var activeTag = null;
+    var graphInitialized = false;
+
+    // ---- Tab switching ----
+    var tabBtns = document.querySelectorAll('.tab-btn');
+    var panels  = document.querySelectorAll('.tab-panel');
+
+    tabBtns.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        tabBtns.forEach(function(b) { b.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+
+        if (btn.dataset.tab === 'graph' && !graphInitialized) {
+          loadGraph();
+        }
+      });
+    });
+
+    // ---- Search ----
+    var searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', function() { renderReports(); });
+
+    // ---- Helpers ----
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      var d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function shortDate(dateStr) {
+      if (!dateStr) return '';
+      var d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function formatWordCount(n) {
+      if (!n) return '0 words';
+      if (n >= 1000) return Math.round(n / 1000) + 'k words';
+      return n + ' words';
+    }
+
+    function escapeHtml(str) {
+      var div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ---- Safe DOM builders ----
+    function el(tag, attrs, children) {
+      var node = document.createElement(tag);
+      if (attrs) {
+        Object.keys(attrs).forEach(function(k) {
+          if (k === 'className') node.className = attrs[k];
+          else if (k === 'textContent') node.textContent = attrs[k];
+          else node.setAttribute(k, attrs[k]);
+        });
+      }
+      if (children) {
+        children.forEach(function(c) {
+          if (typeof c === 'string') node.appendChild(document.createTextNode(c));
+          else if (c) node.appendChild(c);
+        });
+      }
+      return node;
+    }
+
+    // ---- Reports ----
+    function loadReports(tag) {
+      var url = tag ? '/api/reports?tag=' + encodeURIComponent(tag) : '/api/reports';
+      fetch(url).then(function(resp) { return resp.json(); }).then(function(data) {
+        allReports = data;
+        renderReports();
+      }).catch(function() {
+        allReports = [];
+        renderReports();
+      });
+    }
+
+    function renderReports() {
+      var query = searchInput.value.toLowerCase().trim();
+      var list = document.getElementById('reportList');
+      var filtered = allReports;
+
+      if (query) {
+        filtered = filtered.filter(function(r) {
+          return r.title.toLowerCase().indexOf(query) !== -1 ||
+            (r.tags || []).some(function(t) { return t.toLowerCase().indexOf(query) !== -1; }) ||
+            (r.thread || '').toLowerCase().indexOf(query) !== -1;
+        });
+      }
+
+      // Clear existing children
+      while (list.firstChild) list.removeChild(list.firstChild);
+
+      if (filtered.length === 0) {
+        list.appendChild(el('div', { className: 'empty-state', textContent: 'No reports found.' }));
+        return;
+      }
+
+      filtered.forEach(function(r) {
+        var sources = Array.isArray(r.sources) ? r.sources.join(', ') : '';
+
+        // Build tag chips
+        var tagEls = (r.tags || []).map(function(t) {
+          return el('span', { className: 'tag', textContent: t });
+        });
+
+        var metaText = formatDate(r.date) +
+          (sources ? ' \u00b7 ' + sources : '') +
+          ' \u00b7 ' + formatWordCount(r.word_count);
+
+        var bodyEl = el('div', { className: 'report-card-body' }, [
+          el('div', { className: 'report-card-title', textContent: r.title }),
+          el('div', { className: 'report-card-meta', textContent: metaText }),
+          el('div', { className: 'tag-list' }, tagEls)
+        ]);
+
+        var cardChildren = [bodyEl];
+        if (r.thread) {
+          cardChildren.push(el('div', { className: 'thread-badge', textContent: '\uD83D\uDD17 ' + r.thread }));
+        }
+
+        list.appendChild(el('div', { className: 'report-card' }, cardChildren));
+      });
+    }
+
+    // ---- Tag filters ----
+    function loadTags() {
+      fetch('/api/tags').then(function(resp) { return resp.json(); }).then(function(tags) {
+        var row = document.getElementById('filterRow');
+
+        var allChip = el('button', { className: 'filter-chip active', textContent: 'all' });
+        allChip.addEventListener('click', function() {
+          activeTag = null;
+          row.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+          allChip.classList.add('active');
+          loadReports(null);
+        });
+        row.appendChild(allChip);
+
+        tags.forEach(function(t) {
+          var chip = el('button', { className: 'filter-chip', textContent: t.name });
+          chip.addEventListener('click', function() {
+            activeTag = t.name;
+            row.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+            chip.classList.add('active');
+            loadReports(t.name);
+          });
+          row.appendChild(chip);
+        });
+      }).catch(function() { /* ignore */ });
+    }
+
+    // ---- Threads ----
+    function loadThreads() {
+      var list = document.getElementById('threadList');
+      fetch('/api/threads').then(function(resp) { return resp.json(); }).then(function(threads) {
+        if (threads.length === 0) {
+          while (list.firstChild) list.removeChild(list.firstChild);
+          list.appendChild(el('div', { className: 'empty-state', textContent: 'No threads found.' }));
+          return;
+        }
+
+        // Fetch details for each thread
+        return Promise.all(
+          threads.map(function(t) {
+            return fetch('/api/threads/' + encodeURIComponent(t.name))
+              .then(function(r) { return r.json(); })
+              .catch(function() {
+                return { name: t.name, reports: [], report_count: t.report_count };
+              });
+          })
+        ).then(function(details) {
+          while (list.firstChild) list.removeChild(list.firstChild);
+
+          details.forEach(function(td) {
+            var reports = td.reports || [];
+            var allTags = [];
+            reports.forEach(function(r) {
+              (r.tags || []).forEach(function(t) {
+                if (allTags.indexOf(t) === -1) allTags.push(t);
+              });
+            });
+            var lastUpdated = reports.length > 0
+              ? reports[reports.length - 1].date
+              : '';
+
+            var count = td.report_count || reports.length;
+            var metaText = count + ' report' + (count !== 1 ? 's' : '') +
+              ' \u00b7 Last updated ' + formatDate(lastUpdated) +
+              (allTags.length ? ' \u00b7 Tags: ' + allTags.join(', ') : '');
+
+            // Build timeline
+            var timelineChildren = [];
+            reports.forEach(function(r, i) {
+              var shortTitle = r.title.length > 30
+                ? r.title.substring(0, 28) + '...'
+                : r.title;
+
+              if (i > 0) {
+                timelineChildren.push(el('div', { className: 'timeline-line' }));
+              }
+
+              var labelEl = el('div', { className: 'timeline-label' }, [
+                document.createTextNode(shortTitle),
+                document.createElement('br'),
+                el('span', { className: 'timeline-date', textContent: shortDate(r.date) })
+              ]);
+
+              timelineChildren.push(
+                el('div', { className: 'timeline-entry' }, [
+                  labelEl,
+                  el('div', { className: 'timeline-dot' })
+                ])
+              );
+            });
+
+            list.appendChild(
+              el('div', { className: 'thread-card' }, [
+                el('div', { className: 'thread-card-name', textContent: td.name }),
+                el('div', { className: 'thread-card-meta', textContent: metaText }),
+                el('div', { className: 'timeline' }, timelineChildren)
+              ])
+            );
+          });
+        });
+      }).catch(function() {
+        while (list.firstChild) list.removeChild(list.firstChild);
+        list.appendChild(el('div', { className: 'empty-state', textContent: 'Failed to load threads.' }));
+      });
+    }
+
+    // ---- Tag Graph (D3) ----
+    var GRAPH_COLORS = [
+      '#0f62fe', '#6929c4', '#198038', '#da1e28', '#b28600',
+      '#009d9a', '#8a3ffc', '#1192e8', '#fa4d56', '#4589ff'
+    ];
+
+    function loadGraph() {
+      var container = document.getElementById('graphContainer');
+      var width = container.clientWidth || 900;
+      var height = Math.max(500, window.innerHeight - 180);
+      container.style.height = height + 'px';
+
+      fetch('/api/tags/graph').then(function(resp) { return resp.json(); }).then(function(data) {
+        if (!data.nodes || data.nodes.length === 0) {
+          container.appendChild(el('div', { className: 'empty-state', textContent: 'No tags to graph.' }));
+          graphInitialized = true;
+          return;
+        }
+
+        // Build node and link structures for D3
+        var maxCount = Math.max.apply(null, data.nodes.map(function(n) { return n.count; })) || 1;
+        var nodeMap = {};
+        var nodes = data.nodes.map(function(n, i) {
+          var radius = 16 + (n.count / maxCount) * 34;
+          var node = { id: n.name, count: n.count, radius: radius, color: GRAPH_COLORS[i % GRAPH_COLORS.length] };
+          nodeMap[n.name] = node;
+          return node;
+        });
+
+        var maxWeight = Math.max.apply(null, data.edges.map(function(e) { return e.weight; })) || 1;
+        var links = data.edges
+          .filter(function(e) { return nodeMap[e.source] && nodeMap[e.target]; })
+          .map(function(e) {
+            return {
+              source: e.source,
+              target: e.target,
+              weight: e.weight,
+              opacity: 0.15 + (e.weight / maxWeight) * 0.55
+            };
+          });
+
+        while (container.firstChild) container.removeChild(container.firstChild);
+
+        var svg = d3.select(container)
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+
+        // Zoom layer — mouse wheel + +/- keys
+        var zoomG = svg.append('g');
+        var zoomBehavior = d3.zoom()
+          .scaleExtent([0.2, 5])
+          .on('zoom', function(event) { zoomG.attr('transform', event.transform); });
+        svg.call(zoomBehavior);
+
+        // +/- key zoom
+        d3.select(window).on('keydown.graph', function(event) {
+          if (document.getElementById('panel-graph').classList.contains('active')) {
+            var k = event.key;
+            if (k === '+' || k === '=') {
+              event.preventDefault();
+              svg.transition().duration(200).call(zoomBehavior.scaleBy, 1.3);
+            } else if (k === '-' || k === '_') {
+              event.preventDefault();
+              svg.transition().duration(200).call(zoomBehavior.scaleBy, 0.7);
+            }
+          }
+        });
+
+        var simulation = d3.forceSimulation(nodes)
+          .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(160).strength(0.3))
+          .force('charge', d3.forceManyBody().strength(-400).distanceMin(40))
+          .force('center', d3.forceCenter(width / 2, height / 2).strength(0.05))
+          .force('collision', d3.forceCollide().radius(function(d) { return d.radius + 12; }))
+          .alphaDecay(0.04)
+          .velocityDecay(0.6);
+
+        var link = zoomG.append('g')
+          .selectAll('line')
+          .data(links)
+          .join('line')
+          .attr('stroke', '#c6c6c6')
+          .attr('stroke-width', function(d) { return 1 + d.weight; })
+          .attr('stroke-opacity', function(d) { return d.opacity; });
+
+        var nodeGroup = zoomG.append('g')
+          .selectAll('g')
+          .data(nodes)
+          .join('g')
+          .call(d3.drag()
+            .on('start', dragStarted)
+            .on('drag', dragged)
+            .on('end', dragEnded));
+
+        nodeGroup.append('circle')
+          .attr('r', function(d) { return d.radius; })
+          .attr('fill', function(d) { return d.color; })
+          .attr('stroke', '#ffffff')
+          .attr('stroke-width', 2)
+          .style('cursor', 'grab');
+
+        // Label: inside for large nodes, below for small
+        nodeGroup.each(function(d) {
+          var g = d3.select(this);
+          if (d.radius >= 28) {
+            g.append('text')
+              .attr('class', 'graph-label-inside')
+              .attr('dy', '0.35em')
+              .text(d.id);
+          } else {
+            g.append('text')
+              .attr('class', 'graph-label-below')
+              .attr('dy', d.radius + 14)
+              .text(d.id);
+          }
+        });
+
+        simulation.on('tick', function() {
+          link
+            .attr('x1', function(d) { return d.source.x; })
+            .attr('y1', function(d) { return d.source.y; })
+            .attr('x2', function(d) { return d.target.x; })
+            .attr('y2', function(d) { return d.target.y; });
+
+          nodeGroup.attr('transform', function(d) {
+            d.x = Math.max(d.radius, Math.min(width - d.radius, d.x));
+            d.y = Math.max(d.radius, Math.min(height - d.radius, d.y));
+            return 'translate(' + d.x + ',' + d.y + ')';
+          });
+        });
+
+        function dragStarted(event, d) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        }
+        function dragged(event, d) {
+          d.fx = event.x;
+          d.fy = event.y;
+        }
+        function dragEnded(event, d) {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }
+
+        graphInitialized = true;
+      }).catch(function() {
+        while (container.firstChild) container.removeChild(container.firstChild);
+        container.appendChild(el('div', { className: 'empty-state', textContent: 'Failed to load tag graph.' }));
+        graphInitialized = true;
+      });
+    }
+
+    // ---- Init ----
+    loadTags();
+    loadReports(null);
+    loadThreads();
+  })();
+  </script>
+</body>
+</html>
