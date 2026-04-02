@@ -104,49 +104,34 @@ The backfill script reads each `.md` file, extracts the title from the first `# 
 Recall is designed to run on a separate server (e.g., AWS EC2) while your research tools run locally. Reports (full content) never leave your local machine — only metadata is sent to the server.
 
 ```mermaid
-graph TB
+graph LR
     subgraph PC["🖥️ Your PC"]
         direction TB
         RC["/research Command"]
-        VV["VectorVault<br/><small>Semantic Search</small>"]
-        OB["📁 Obsidian Vault<br/><small>Reports + Images</small>"]
-        
-        subgraph Sources["Source Priority Chain"]
-            direction LR
-            S1["1. WebSearch"]
-            S2["2. Apify"]
-            S3["3. yt-dlp"]
-        end
+        VV["VectorVault"]
+        S1["WebSearch → Apify → yt-dlp"]
+        OB["📁 Obsidian Vault"]
 
         RC --> VV
-        RC --> Sources
+        RC --> S1
         RC --> OB
     end
 
     subgraph EC2["☁️ AWS EC2"]
         direction TB
-        API["Flask API<br/><small>9 endpoints</small>"]
-        DB[("SQLite<br/>Index")]
-        
-        subgraph Dashboard
-            direction LR
-            D1["Reports"]
-            D2["Threads"]
-            D3["Tag Graph"]
-        end
+        API["Flask API"]
+        DB[("SQLite Index")]
+        D1["Dashboard: Reports | Threads | Tag Graph"]
 
         API --> DB
-        API --> Dashboard
+        API --> D1
     end
 
-    RC -- "Register metadata<br/><small>TLS over Tailscale</small>" --> API
+    RC -- "Register metadata" --> API
     API -. "MOC content" .-> RC
 
     style PC fill:#f8f9fa,stroke:#0f62fe,stroke-width:2px
     style EC2 fill:#f8f9fa,stroke:#198038,stroke-width:2px
-    style Sources fill:#e8f0fe,stroke:#0f62fe
-    style Dashboard fill:#defbe6,stroke:#198038
-    style DB fill:#fff,stroke:#525252
     style RC fill:#0f62fe,color:#fff
     style API fill:#198038,color:#fff
 ```
