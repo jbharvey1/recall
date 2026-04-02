@@ -88,7 +88,7 @@ class TestInferThread:
         assert infer_thread(["security"], "CyberSecurity Report") == "cybersec"
 
     def test_poe_thread(self):
-        assert infer_thread(["poe"], "Farming Guide") == "poe"
+        assert infer_thread(["poe"], "PoE Build Guide") == "poe"
 
     def test_no_thread(self):
         assert infer_thread(["untagged"], "Random Notes") is None

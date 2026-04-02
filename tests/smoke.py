@@ -2,7 +2,7 @@
 """
 Smoke test for deployed research-index service.
 Run: python tests/test_smoke.py <api-url>
-Example: python tests/test_smoke.py https://100.118.62.104:9400
+Example: python tests/test_smoke.py https://your-server:9400
 """
 import json
 import sys
