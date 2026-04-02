@@ -103,20 +103,7 @@ The backfill script reads each `.md` file, extracts the title from the first `# 
 
 Recall is designed to run on a separate server (e.g., AWS EC2) while your research tools run locally. Reports (full content) never leave your local machine — only metadata is sent to the server.
 
-```
-┌─────────────────────────────────────┐       ┌─────────────────────────────────────┐
-│  YOUR PC                            │       │  AWS EC2                            │
-│                                     │       │                                     │
-│  /research ─┬─► VectorVault        │       │  Flask API (9 endpoints)            │
-│             ├─► WebSearch           │       │    ├─► SQLite Index                 │
-│             ├─► Apify               │ ────► │    └─► Web Dashboard                │
-│             ├─► yt-dlp              │  TLS  │         ├── Reports                 │
-│             └─► Obsidian Vault      │ ◄──── │         ├── Threads                 │
-│                 (reports + images)   │  MOC  │         └── Tag Graph               │
-│                                     │       │                                     │
-└─────────────────────────────────────┘       └─────────────────────────────────────┘
-         Content stays here                         Metadata only
-```
+![Architecture](docs/architecture.svg)
 
 ### Data Flow
 

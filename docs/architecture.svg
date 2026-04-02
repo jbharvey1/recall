@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 380" font-family="'IBM Plex Sans', system-ui, -apple-system, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#697077"/>
+    </marker>
+    <marker id="arrow-back" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+      <path d="M8,0 L0,3 L8,6" fill="#697077"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="920" height="380" rx="12" fill="#f4f4f4"/>
+
+  <!-- Title -->
+  <text x="460" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#161616">Recall — Architecture</text>
+  <text x="460" y="52" text-anchor="middle" font-size="12" fill="#525252">Two machines, one brain — connected via Tailscale</text>
+
+  <!-- PC Box -->
+  <rect x="30" y="72" width="390" height="280" rx="10" fill="#ffffff" stroke="#0f62fe" stroke-width="2"/>
+  <rect x="50" y="64" width="80" height="20" rx="4" fill="#0f62fe"/>
+  <text x="90" y="78" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">YOUR PC</text>
+
+  <!-- PC Title -->
+  <text x="50" y="108" font-size="15" font-weight="700" fill="#161616">Claude Code + Obsidian</text>
+
+  <!-- /research command -->
+  <text x="50" y="136" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">INTERACTIVE RESEARCH</text>
+  <rect x="50" y="146" width="350" height="36" rx="6" fill="#f4f4f4"/>
+  <text x="68" y="163" font-size="13" font-weight="600" fill="#0f62fe">/</text>
+  <text x="88" y="163" font-size="13" font-weight="600" fill="#161616">/research</text>
+  <text x="88" y="176" font-size="10" fill="#525252">Prior knowledge check + multi-source research</text>
+
+  <!-- VectorVault -->
+  <rect x="50" y="188" width="350" height="36" rx="6" fill="#f4f4f4"/>
+  <text x="68" y="207" font-size="14" fill="#0f62fe">&#x1F50D;</text>
+  <text x="88" y="207" font-size="13" font-weight="600" fill="#161616">VectorVault</text>
+  <text x="88" y="219" font-size="10" fill="#525252">Semantic search across vault notes</text>
+
+  <!-- Source chain -->
+  <text x="50" y="244" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">SOURCE PRIORITY</text>
+  <rect x="50" y="253" width="110" height="28" rx="6" fill="#e8f0fe"/>
+  <text x="60" y="269" font-size="10" fill="#0f62fe" font-weight="600">1</text>
+  <text x="75" y="269" font-size="11" fill="#161616">WebSearch</text>
+
+  <rect x="170" y="253" width="80" height="28" rx="6" fill="#e8f0fe"/>
+  <text x="180" y="269" font-size="10" fill="#0f62fe" font-weight="600">2</text>
+  <text x="195" y="269" font-size="11" fill="#161616">Apify</text>
+
+  <rect x="260" y="253" width="80" height="28" rx="6" fill="#e8f0fe"/>
+  <text x="270" y="269" font-size="10" fill="#0f62fe" font-weight="600">3</text>
+  <text x="285" y="269" font-size="11" fill="#161616">yt-dlp</text>
+
+  <!-- Output -->
+  <text x="50" y="304" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">OUTPUT</text>
+  <rect x="50" y="313" width="350" height="28" rx="6" fill="#f4f4f4"/>
+  <text x="68" y="331" font-size="13" fill="#161616">&#128218;</text>
+  <text x="88" y="331" font-size="13" font-weight="600" fill="#161616">Obsidian Vault</text>
+  <text x="212" y="331" font-size="10" fill="#525252">Reports with YAML frontmatter + images</text>
+
+  <!-- EC2 Box -->
+  <rect x="500" y="72" width="390" height="280" rx="10" fill="#ffffff" stroke="#198038" stroke-width="2"/>
+  <rect x="520" y="64" width="80" height="20" rx="4" fill="#198038"/>
+  <text x="560" y="78" text-anchor="middle" font-size="10" font-weight="600" fill="#ffffff">AWS EC2</text>
+
+  <!-- EC2 Title -->
+  <text x="520" y="108" font-size="15" font-weight="700" fill="#161616">Recall Index Service</text>
+
+  <!-- Flask API -->
+  <text x="520" y="136" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">BACKEND</text>
+  <rect x="520" y="146" width="350" height="36" rx="6" fill="#f4f4f4"/>
+  <text x="538" y="163" font-size="13" fill="#525252">&#9881;</text>
+  <text x="558" y="163" font-size="13" font-weight="600" fill="#161616">Flask API</text>
+  <text x="558" y="176" font-size="10" fill="#525252">9 endpoints — reports, threads, tags, MOC, stats</text>
+
+  <!-- SQLite -->
+  <rect x="520" y="188" width="350" height="36" rx="6" fill="#f4f4f4"/>
+  <text x="538" y="207" font-size="13" fill="#525252">&#128451;</text>
+  <text x="558" y="207" font-size="13" font-weight="600" fill="#161616">SQLite Index</text>
+  <text x="558" y="219" font-size="10" fill="#525252">Reports, tags, threads, co-occurrence</text>
+
+  <!-- Dashboard -->
+  <text x="520" y="244" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">WEB DASHBOARD</text>
+  <rect x="520" y="253" width="350" height="42" rx="6" fill="#ffffff" stroke="#e0e0e0" stroke-width="1"/>
+  <!-- Tab bar -->
+  <line x1="520" y1="272" x2="870" y2="272" stroke="#e0e0e0"/>
+  <text x="545" y="267" font-size="11" font-weight="600" fill="#198038">Reports</text>
+  <line x1="530" y1="270" x2="580" y2="270" stroke="#198038" stroke-width="2"/>
+  <text x="615" y="267" font-size="11" fill="#525252">Threads</text>
+  <text x="690" y="267" font-size="11" fill="#525252">Tag Graph</text>
+  <text x="540" y="289" font-size="10" fill="#525252">Filter by tag, browse threads, explore D3 tag graph</text>
+
+  <!-- Infra chips -->
+  <text x="520" y="316" font-size="10" font-weight="600" fill="#525252" letter-spacing="0.5">INFRASTRUCTURE</text>
+  <rect x="520" y="323" width="64" height="20" rx="10" fill="#e8f0fe"/>
+  <text x="532" y="337" font-size="10" font-weight="500" fill="#0f62fe">ProcMan</text>
+  <rect x="592" y="323" width="68" height="20" rx="10" fill="#e8f0fe"/>
+  <text x="604" y="337" font-size="10" font-weight="500" fill="#0f62fe">Tailscale</text>
+  <rect x="668" y="323" width="38" height="20" rx="10" fill="#e8f0fe"/>
+  <text x="677" y="337" font-size="10" font-weight="500" fill="#0f62fe">TLS</text>
+  <rect x="714" y="323" width="60" height="20" rx="10" fill="#e8f0fe"/>
+  <text x="724" y="337" font-size="10" font-weight="500" fill="#0f62fe">systemd</text>
+
+  <!-- Connection arrows -->
+  <line x1="420" y1="185" x2="500" y2="185" stroke="#697077" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="460" y="178" text-anchor="middle" font-size="9" fill="#525252">Register</text>
+
+  <line x1="500" y1="205" x2="420" y2="205" stroke="#697077" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow-back)"/>
+  <text x="460" y="218" text-anchor="middle" font-size="9" fill="#525252">MOC</text>
+
+  <!-- Tailscale label -->
+  <rect x="438" y="145" width="44" height="14" rx="3" fill="#e8f0fe"/>
+  <text x="460" y="155" text-anchor="middle" font-size="8" font-weight="600" fill="#0f62fe">TLS</text>
+</svg>
