@@ -101,12 +101,82 @@ The backfill script reads each `.md` file, extracts the title from the first `# 
 
 ## Architecture
 
-Recall is designed to run on a separate server (e.g., AWS EC2) while your research tools run locally:
+Recall is designed to run on a separate server (e.g., AWS EC2) while your research tools run locally. Reports (full content) never leave your local machine — only metadata is sent to the server.
 
-- **Your PC** — runs research tools, saves reports to local vault, registers metadata with Recall
-- **Server** — hosts the Recall API + dashboard, accessible via private network
+```mermaid
+graph TB
+    subgraph PC["🖥️ Your PC"]
+        direction TB
+        RC["/research Command"]
+        VV["VectorVault<br/><small>Semantic Search</small>"]
+        OB["📁 Obsidian Vault<br/><small>Reports + Images</small>"]
+        
+        subgraph Sources["Source Priority Chain"]
+            direction LR
+            S1["1. WebSearch"]
+            S2["2. Apify"]
+            S3["3. yt-dlp"]
+        end
 
-Reports (full content) never leave your local machine. Only metadata is sent to the server.
+        RC --> VV
+        RC --> Sources
+        RC --> OB
+    end
+
+    subgraph EC2["☁️ AWS EC2"]
+        direction TB
+        API["Flask API<br/><small>9 endpoints</small>"]
+        DB[("SQLite<br/>Index")]
+        
+        subgraph Dashboard
+            direction LR
+            D1["Reports"]
+            D2["Threads"]
+            D3["Tag Graph"]
+        end
+
+        API --> DB
+        API --> Dashboard
+    end
+
+    RC -- "Register metadata<br/><small>TLS over Tailscale</small>" --> API
+    API -. "MOC content" .-> RC
+
+    style PC fill:#f8f9fa,stroke:#0f62fe,stroke-width:2px
+    style EC2 fill:#f8f9fa,stroke:#198038,stroke-width:2px
+    style Sources fill:#e8f0fe,stroke:#0f62fe
+    style Dashboard fill:#defbe6,stroke:#198038
+    style DB fill:#fff,stroke:#525252
+    style RC fill:#0f62fe,color:#fff
+    style API fill:#198038,color:#fff
+```
+
+### Data Flow
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as /research
+    participant V as VectorVault
+    participant R as Recall API
+    participant W as Web Sources
+
+    U->>C: /research AI agents --thread ai-agents
+    C->>R: GET /api/threads/ai-agents
+    R-->>C: Prior reports in thread
+    C->>V: Search "AI agents"
+    V-->>C: Related vault notes
+    C->>U: "Here's what you already know. Go deeper?"
+    U->>C: Yes, go deeper
+    C->>W: WebSearch + Apify + yt-dlp
+    W-->>C: Raw findings + images
+    C->>C: Compile report with frontmatter
+    C->>U: Save to Obsidian vault
+    C->>R: POST /api/reports (metadata only)
+    C->>R: GET /api/moc/render
+    R-->>C: Updated MOC markdown
+    C->>U: Report saved, indexed, MOC updated
+```
 
 ## Tech Stack
 
