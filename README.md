@@ -103,37 +103,19 @@ The backfill script reads each `.md` file, extracts the title from the first `# 
 
 Recall is designed to run on a separate server (e.g., AWS EC2) while your research tools run locally. Reports (full content) never leave your local machine — only metadata is sent to the server.
 
-```mermaid
-graph LR
-    subgraph PC["🖥️ Your PC"]
-        direction TB
-        RC["/research Command"]
-        VV["VectorVault"]
-        S1["WebSearch → Apify → yt-dlp"]
-        OB["📁 Obsidian Vault"]
-
-        RC --> VV
-        RC --> S1
-        RC --> OB
-    end
-
-    subgraph EC2["☁️ AWS EC2"]
-        direction TB
-        API["Flask API"]
-        DB[("SQLite Index")]
-        D1["Dashboard: Reports | Threads | Tag Graph"]
-
-        API --> DB
-        API --> D1
-    end
-
-    RC -- "Register metadata" --> API
-    API -. "MOC content" .-> RC
-
-    style PC fill:#f8f9fa,stroke:#0f62fe,stroke-width:2px
-    style EC2 fill:#f8f9fa,stroke:#198038,stroke-width:2px
-    style RC fill:#0f62fe,color:#fff
-    style API fill:#198038,color:#fff
+```
+┌─────────────────────────────────────┐       ┌─────────────────────────────────────┐
+│  YOUR PC                            │       │  AWS EC2                            │
+│                                     │       │                                     │
+│  /research ─┬─► VectorVault        │       │  Flask API (9 endpoints)            │
+│             ├─► WebSearch           │       │    ├─► SQLite Index                 │
+│             ├─► Apify               │ ────► │    └─► Web Dashboard                │
+│             ├─► yt-dlp              │  TLS  │         ├── Reports                 │
+│             └─► Obsidian Vault      │ ◄──── │         ├── Threads                 │
+│                 (reports + images)   │  MOC  │         └── Tag Graph               │
+│                                     │       │                                     │
+└─────────────────────────────────────┘       └─────────────────────────────────────┘
+         Content stays here                         Metadata only
 ```
 
 ### Data Flow
